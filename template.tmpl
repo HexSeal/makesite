@@ -10,14 +10,14 @@
     <table>
         <tr>
           <td>Task</td>
-            <div><object data="new-file.txt"></object></div>
           <td>Done</td>
       </tr>
         {{ with .List }}
           {{ range . }}
             <tr>
                   <td>{{ .Name }}</td>
-                  <td>{{ if .Done }}Yes{{ else }}No{{ end }}</td>
+                  <td>{{ .Content }}</td>
+                  <td>Done: {{ if .Done }}Yes{{ else }}No{{ end }}</td>
             </tr>
           {{ end }}
         {{ end }}

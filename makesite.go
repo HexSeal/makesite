@@ -1,13 +1,16 @@
 package main
 
 import (
-	"fmt"
+	// "fmt"
+	"html/template"
 	"io/ioutil"
+	"os"
 )
 
 type entry struct {
-	Name string
-	Done bool
+	Name    string
+	Content string
+	Done    bool
 }
 
 type ToDo struct {
@@ -15,12 +18,12 @@ type ToDo struct {
 	List []entry
 }
 
-func readFile(file string) {
-        fileContents, err := ioutil.ReadFile(file)
-        if err != nil {
-            panic(err)
-        }
-        fmt.Print(string(fileContents))
+func readFile(file string) string {
+	fileContents, err := ioutil.ReadFile(file)
+	if err != nil {
+		panic(err)
+	}
+	return string(fileContents)
 }
 
 func writeFile() {
@@ -33,7 +36,34 @@ func writeFile() {
 	}
 }
 
+func renderTemplate(name string, data interface{}) {
+	t := template.Must(template.New("template.tmpl").ParseFiles(name))
+
+	err := t.Execute(os.Stdout, data)
+	if err != nil {
+		panic(err)
+	}
+}
+
+func writeTemplateToFile(filename string, data interface{}) {
+	t := template.Must(template.New("template.tmpl").ParseFiles(filename))
+
+	f, err := os.Create("first-post.html")
+	if err != nil {
+		panic(err)
+	}
+
+	err = t.Execute(f, data)
+	if err != nil {
+		panic(err)
+	}
+}
+
 func main() {
-	readFile("first-post.txt")
-	writeFile()
+	newEntry := entry{Name: "New ToDo", Done: false, Content: "Finish this project"}
+	entryList := []entry{newEntry}
+
+	newToDo := ToDo{User: "Max", List: entryList}
+	renderTemplate("template.tmpl", newToDo)
+	writeTemplateToFile("template.tmpl", newToDo)
 }

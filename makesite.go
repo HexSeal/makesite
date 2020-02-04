@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"io/ioutil"
 	"os"
+	"strings"
 )
 
 type entry struct {
@@ -45,10 +46,15 @@ func renderTemplate(name string, data interface{}) {
 	}
 }
 
+func FileExtensionConverter(name string) {
+	return strings.Split(name, ".")[0] + ".html"
+}
+
 func writeTemplateToFile(filename string, data interface{}) {
 	t := template.Must(template.New("template.tmpl").ParseFiles(filename))
 
-	f, err := os.Create("first-post.html")
+	name := FileExtensionConverter(filename)
+	f, err := os.Create(name)
 	if err != nil {
 		panic(err)
 	}
@@ -60,10 +66,12 @@ func writeTemplateToFile(filename string, data interface{}) {
 }
 
 func main() {
-	newEntry := entry{Name: "New ToDo", Done: false, Content: "Finish this project"}
-	entryList := []entry{newEntry}
+	// Mock Data
+	// newEntry := entry{Name: "New ToDo", Done: false, Content: "Finish this project"}
+	// entryList := []entry{newEntry}
+	// newToDo := ToDo{User: "Max", List: entryList}
 
-	newToDo := ToDo{User: "Max", List: entryList}
-	renderTemplate("template.tmpl", newToDo)
-	writeTemplateToFile("template.tmpl", newToDo)
+	arg := os.Args[1]
+	renderTemplate("template.tmpl", readFile(arg))
+	writeTemplateToFile("template.tmpl", readFile(arg))
 }

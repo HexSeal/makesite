@@ -6,6 +6,8 @@ import (
 	"io/ioutil"
 	"os"
 	"strings"
+	"flag"
+	//"github.com/kr/fs"
 )
 
 type entry struct {
@@ -14,10 +16,6 @@ type entry struct {
 	Done    bool
 }
 
-type ToDo struct {
-	User string
-	List []entry
-}
 
 func readFile(file string) string {
 	fileContents, err := ioutil.ReadFile(file)
@@ -46,20 +44,23 @@ func renderTemplate(name string, data interface{}) {
 	}
 }
 
-func FileExtensionConverter(name string) {
-	return strings.Split(name, ".")[0] + ".html"
+func FileExtensionConverter(name string) string {
+	extension := ".html"
+	s := strings.Split(name, ".")[0] + extension
+	return s
 }
 
-func writeTemplateToFile(filename string, data interface{}) {
-	t := template.Must(template.New("template.tmpl").ParseFiles(filename))
+func writeTemplateToFile(templateName string, fileName string) {
+	c := entry{Content: readFile(fileName)}
+	t := template.Must(template.New("template.tmpl").ParseFiles(templateName))
 
-	name := FileExtensionConverter(filename)
+	name := FileExtensionConverter(fileName)
 	f, err := os.Create(name)
 	if err != nil {
 		panic(err)
 	}
 
-	err = t.Execute(f, data)
+	err = t.Execute(f, c)
 	if err != nil {
 		panic(err)
 	}
@@ -71,7 +72,12 @@ func main() {
 	// entryList := []entry{newEntry}
 	// newToDo := ToDo{User: "Max", List: entryList}
 
+	var filename string
+	flag.StringVar(&filename, "filename", "new-post.txt", "The name of the text file we want to save in HTML")
+
 	arg := os.Args[1]
-	renderTemplate("template.tmpl", readFile(arg))
-	writeTemplateToFile("template.tmpl", readFile(arg))
+// 	if err := fs.Parse(os.Args[1:]); err != nil {
+// 		os.Exit(100)
+// }
+	writeTemplateToFile("template.tmpl", arg)
 }

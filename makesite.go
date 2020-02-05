@@ -1,12 +1,13 @@
 package main
 
 import (
-	// "fmt"
+	"flag"
+	"fmt"
 	"html/template"
 	"io/ioutil"
+	"log"
 	"os"
 	"strings"
-	"flag"
 	//"github.com/kr/fs"
 )
 
@@ -15,7 +16,6 @@ type entry struct {
 	Content string
 	Done    bool
 }
-
 
 func readFile(file string) string {
 	fileContents, err := ioutil.ReadFile(file)
@@ -45,9 +45,24 @@ func renderTemplate(name string, data interface{}) {
 }
 
 func FileExtensionConverter(name string) string {
+	// Converts a file extension from .txt to .html, or any other file you want set by extension.
 	extension := ".html"
 	s := strings.Split(name, ".")[0] + extension
 	return s
+}
+
+func TextFileCheck(name string) bool {
+	// Returns true if the file is a text file, otherwise false
+	extension := "txt"
+	for i := range name {
+		if name[i] == '.' {
+			s := strings.Split(name, ".")[1]
+			if s == extension {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 func writeTemplateToFile(templateName string, fileName string) {
@@ -66,18 +81,26 @@ func writeTemplateToFile(templateName string, fileName string) {
 	}
 }
 
+func parser() {
+	var dir string
+	flag.StringVar(&dir, "dir", ".", "The directory with the text files that we're going to convert to HTML. Default is current directory.")
+	flag.Parse()
+
+	fmt.Println("Input:", dir)
+
+	files, err := ioutil.ReadDir(dir)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for _, file := range files {
+		if TextFileCheck(file.Name()) == true {
+			fmt.Println(file.Name())
+			writeTemplateToFile("template.tmpl", file.Name())
+		}
+	}
+}
+
 func main() {
-	// Mock Data
-	// newEntry := entry{Name: "New ToDo", Done: false, Content: "Finish this project"}
-	// entryList := []entry{newEntry}
-	// newToDo := ToDo{User: "Max", List: entryList}
-
-	var filename string
-	flag.StringVar(&filename, "filename", "new-post.txt", "The name of the text file we want to save in HTML")
-
-	arg := os.Args[1]
-// 	if err := fs.Parse(os.Args[1:]); err != nil {
-// 		os.Exit(100)
-// }
-	writeTemplateToFile("template.tmpl", arg)
+	parser()
 }

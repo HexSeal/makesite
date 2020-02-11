@@ -9,6 +9,10 @@ import (
 	"golang.org/x/text/language"
 )
 
+// https://github.com/GoogleCloudPlatform/golang-samples/blob/master/translate/translate_quickstart/main.go
+
+// https://cloud.google.com/translate/docs/languages
+
 func translateText(targetLanguage, text, model string) (string, error) {
 	// targetLanguage := "ja"
 	// text := "The Go Gopher is cute"

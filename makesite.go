@@ -35,12 +35,11 @@ func writeFile() {
 	}
 }
 
-func writeTranslate(filename string) {
-	var lang string
-	flag.StringVar(&lang, "t", "en", "The language the text will be translated into. Default is english. Use -t=, followed by Google's language abbreviation.")
-	flag.Parse()
+func writeTranslate(filename string, lang string) {
+	FileText := readFile(filename)
+	model := "nmt"
 
-	contents, error := translateText(lang, readFile(filename), "mnt")
+	contents, error := translateText(lang, FileText, model)
 	if error != nil {
 		panic(error)
 	}
@@ -101,6 +100,9 @@ func writeTemplateToFile(templateName string, fileName string) {
 func parser() {
 	var dir string
 	flag.StringVar(&dir, "dir", ".", "The directory with the text files that we're going to convert to HTML. Default is current directory. Use -dir=")
+
+	var lang string
+	flag.StringVar(&lang, "t", "en", "The language the text will be translated into. Default is english. Use -t=, followed by Google's language abbreviation.")
 	flag.Parse()
 
 	fmt.Println("Input:", dir)
@@ -112,7 +114,7 @@ func parser() {
 
 	for _, file := range files {
 		if TextFileCheck(file.Name()) == true {
-			writeTranslate(file.Name())
+			writeTranslate(file.Name(), lang)
 			fmt.Println(file.Name())
 			writeTemplateToFile("template.tmpl", file.Name())
 		}
@@ -121,5 +123,5 @@ func parser() {
 
 func main() {
 	parser()
-	// translateText("es", "Hello world!", "nmt")
+	//translateText("es", "Hello world!", "nmt")
 }
